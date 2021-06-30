@@ -251,7 +251,7 @@ end
 			end
 		end
 
-		
+		if GetSpellTexture(eTotemList[currentTotem]) == nil then eTexture:SetTexture(GetSpellTexture(eTotemList[currentTotem]))	end
 		local queueIndex = element["queue"]
 		local queueTexture = eQueueTexture
 		if queueIndex==nil then
