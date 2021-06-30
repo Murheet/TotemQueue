@@ -2,7 +2,7 @@
 	<Script file="TotemQueue.lua"/>
     <Frame name="TotemQueueFrame" parent="UIParent" enableMouse="true" movable="true" frameStrata="3" toplevel="true" inherits="BackdropTemplate">
 		<Size>
-			<AbsDimension x="32" y="32" />
+			<AbsDimension x="32" y="40" />
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER">
@@ -11,6 +11,35 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
+		<Layers>
+			<Layer name="TotemQueue_Background_layer" level="BACKGROUND">
+				<FontString name="LeftText" text="TotemQueue by Murhe" font="Fonts\FRIZQT__.TTF" justifyH="CENTER" justifyV="MIDDLE">
+					<FontHeight val="12"/>
+					<Color r="1" g="1" b="1" a="1"/>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="-3"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Shadow>
+						<Offset x="1" y="1" />
+						<Color r="0" g="0" b="0"/>
+					</Shadow>
+				</FontString>
+
+				<Texture name="TotemQueue_Background_Texture">
+					<Anchors>
+						<Anchor point="CENTER">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
 
 		<Frames>
 			<Frame name="Totem_Air_Frame">
@@ -25,7 +54,7 @@
 					</Anchor>
 				</Anchors>
 				<Layers>
-					<Layer name="Totem_Air_Layer">
+					<Layer name="Totem_Air_Layer" level="ARTWORK">
 						<Texture name="Totem_Air_Texture">
 							<Size>
 								<AbsDimension x="32" y="32"/>
@@ -39,12 +68,25 @@
 							</Anchors>
 						</Texture>
 					</Layer>
+					<Layer name="Totem_Air_Queue_Layer" hidden="true" level="OVERLAY">
+						<Texture name="Totem_Air_Queue_Texture">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
 				</Layers>
 				<Scripts>
 					<OnMouseDown function="Totem_Frame_Click"/>
 				</Scripts>
 			</Frame>
-
 			<Frame name="Totem_Water_Frame">
 				<Size>
 					<AbsDimension x="32" y="32" />
@@ -57,7 +99,7 @@
 					</Anchor>
 				</Anchors>
 				<Layers>
-					<Layer name="Totem_Water_Layer">
+					<Layer name="Totem_Water_Layer" level="ARTWORK">
 						<Texture name="Totem_Water_Texture">
 							<Size>
 								<AbsDimension x="32" y="32"/>
@@ -71,12 +113,25 @@
 							</Anchors>
 						</Texture>
 					</Layer>
+					<Layer name="Totem_Water_Queue_Layer" hidden="true" level="OVERLAY">
+						<Texture name="Totem_Water_Queue_Texture">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
 				</Layers>
 				<Scripts>
 					<OnMouseDown function="Totem_Frame_Click"/>
 				</Scripts>
 			</Frame>
-
 			<Frame name="Totem_Earth_Frame">
 				<Size>
 					<AbsDimension x="32" y="32" />
@@ -89,7 +144,7 @@
 					</Anchor>
 				</Anchors>
 				<Layers>
-					<Layer name="Totem_Earth_Layer">
+					<Layer name="Totem_Earth_Layer" level="ARTWORK">
 						<Texture name="Totem_Earth_Texture">
 							<Size>
 								<AbsDimension x="32" y="32"/>
@@ -103,12 +158,25 @@
 							</Anchors>
 						</Texture>
 					</Layer>
+					<Layer name="Totem_Earth_Queue_Layer" hidden="true" level="OVERLAY">
+						<Texture name="Totem_Earth_Queue_Texture">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
 				</Layers>
 				<Scripts>
 					<OnMouseDown function="Totem_Frame_Click"/>
 				</Scripts>
 			</Frame>
-
 			<Frame name="Totem_Fire_Frame">
 				<Size>
 					<AbsDimension x="32" y="32" />
@@ -121,7 +189,7 @@
 					</Anchor>
 				</Anchors>
 				<Layers>
-					<Layer name="Totem_Fire_Layer">
+					<Layer name="Totem_Fire_Layer" level="ARTWORK">
 						<Texture name="Totem_Fire_Texture">
 							<Size>
 								<AbsDimension x="32" y="32"/>
@@ -135,12 +203,28 @@
 							</Anchors>
 						</Texture>
 					</Layer>
+					<Layer name="Totem_Fire_Queue_Layer" hidden="true" level="OVERLAY">
+						<Texture name="Totem_Fire_Queue_Texture">
+							<Size>
+								<AbsDimension x="16" y="16"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
 				</Layers>
 				<Scripts>
 					<OnMouseDown function="Totem_Frame_Click"/>
 				</Scripts>
 			</Frame>
 		</Frames>
+		
+
 		<Scripts>
 			<OnLoad function="TotemQueueFrame_OnLoad"/>
 			<OnEvent function="TotemQueueFrame_OnEvent"/>

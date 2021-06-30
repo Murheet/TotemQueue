@@ -4,6 +4,8 @@ ThisCharacter = string.lower(UnitName("player"))
 ToQuRealm = string.lower(GetRealmName())
 ToQu_variablesLoaded = false
 
+ButtonOffsetY = 18
+
 Totem ={}
 Totem["air"]={}
 Totem["water"]={}
@@ -12,25 +14,35 @@ Totem["fire"]={}
 
 Totem["air"]["tframe"] = Totem_Air_Frame
 Totem["air"]["texture"] = Totem_Air_Texture
+Totem["air"]["queuetexture"] = Totem_Air_Queue_Texture
 Totem["air"]["totemlist"] = {25587, 25359, 3738,10601,8177,25908,15112, 0}
 Totem["air"]["off"] = 136107
+Totem["air"]["memory"] = nil
+Totem["air"]["queue"] = nil
 
 Totem["water"]["tframe"] = Totem_Water_Frame
 Totem["water"]["texture"] = Totem_Water_Texture
+Totem["water"]["queuetexture"] = Totem_Water_Queue_Texture
 Totem["water"]["totemlist"] = {25570, 38306, 25567,25563,8170, 0}
 Totem["water"]["off"] = 134714
+Totem["water"]["memory"] = nil
+Totem["water"]["queue"] = nil
 
 Totem["earth"]["tframe"] = Totem_Earth_Frame
 Totem["earth"]["texture"] = Totem_Earth_Texture
+Totem["earth"]["queuetexture"] = Totem_Earth_Queue_Texture
 Totem["earth"]["totemlist"] = {2484,10428,10408,25361,8143, 0}
 Totem["earth"]["off"] = 134572
+Totem["earth"]["memory"] = nil
+Totem["earth"]["queue"] = nil
 
 Totem["fire"]["tframe"] = Totem_Fire_Frame
 Totem["fire"]["texture"] = Totem_Fire_Texture
+Totem["fire"]["queuetexture"] = Totem_Fire_Queue_Texture
 Totem["fire"]["totemlist"] = {2894,	 25547, 25552, 25560,25533,30706, 0}
 Totem["fire"]["off"] = 135805
-
-
+Totem["fire"]["memory"] = nil
+Totem["fire"]["queue"] = nil
 
 OrderShort ={}
 OrderShort["a"]="air"
@@ -48,10 +60,29 @@ function TotemQueueFrame_OnLoad(self)
 	print("TotemQueue loaded")
 	-- Globals
 	self:RegisterEvent("ADDON_LOADED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	TotemQueueFrame:Show()
+	TotemQueue_Background_Texture:SetTexture("Interface\\TutorialFrame\\TutorialFrameBackground")
+	TotemQueue_Background_Texture:Show()
 	ToQu_ConfigChange()
 end
 
+function TotemQueueFrame_OnEvent(self, event, ...)
+	if(event == "ADDON_LOADED") then
+		if not(ToQu_variablesLoaded) then TotemQueue_VARIABLES_LOADED() end
+		ToQu_ConfigChange()
+	elseif(event=="PLAYER_REGEN_ENABLED") then
+		local emptyQueue = false
+		for key,value in pairs(Totem) do
+			if Totem[key]["queue"] ~= nil then
+				TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key] = Totem[key]["queue"]
+				Totem[key]["queue"] = nil
+				emptyQueue = true
+			end
+		end
+		if emptyQueue then ToQu_ConfigChange() end
+	end
+end
 function TotemQueue_VARIABLES_LOADED(self)
 	-- initialize our SavedVariable
 
@@ -84,38 +115,59 @@ function TotemQueue_VARIABLES_LOADED(self)
 	ToQu_variablesLoaded = true
 end
 
-function TotemQueueFrame_OnEvent(self, event, ...)
-	if(event == "ADDON_LOADED") then
-		if not(ToQu_variablesLoaded) then TotemQueue_VARIABLES_LOADED() end
 
-		ToQu_ConfigChange()
-	end
-end
+--###########################################################
+--#						Click Function						#
+--###########################################################
 
 function Totem_Frame_Click(self, btn,...)
-	if not(UnitAffectingCombat("player")) then
-		ClickedFrame = self:GetName()
-
-		for key,value in pairs(Totem) do
-			if ClickedFrame == value["tframe"]:GetName() then 
-				
-				local totCount = table.getn(Totem[key]["totemlist"])
-				local currentIndex = TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key]
-				local nextIndex = nil
-				if btn == "LeftButton" then
-					nextIndex = currentIndex+1
-					if nextIndex > totCount then nextIndex = 1 end
-
-				elseif btn == "RightButton" then
-					nextIndex = currentIndex-1
-					if nextIndex == 0  then nextIndex = totCount end
-				end 
-
-				TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key] = nextIndex
-				ToQu_ConfigChange()
-				--Totem[key]["texture"]:SetTexture(GetSpellTexture(Totem[key]["totemlist"][nextIndex]))
-				break
+	ClickedFrame = self:GetName()
+	local regClick = false
+	local nextIndex = nil
+	for key,value in pairs(Totem) do
+		if ClickedFrame == value["tframe"]:GetName() then 
+			local totCount = table.getn(Totem[key]["totemlist"])
+			
+			local currentIndex = nil
+			if Totem[key]["queue"] == nil then 
+				currentIndex =  TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key]
+			else
+				currentIndex =  Totem[key]["queue"] 
 			end
+
+			if btn == "LeftButton" then
+				nextIndex = currentIndex+1
+				if nextIndex > totCount then nextIndex = 1 end
+				regClick = true
+			elseif btn == "RightButton" then
+				nextIndex = currentIndex-1
+				if nextIndex == 0  then nextIndex = totCount end
+				regClick = true
+			elseif btn == "Button4" then		
+				if Totem[key]["memory"] == nil  and currentIndex ~= totCount then
+					Totem[key]["memory"] = currentIndex
+					nextIndex = totCount
+				else
+					nextIndex = Totem[key]["memory"]
+					Totem[key]["memory"] = nil
+				end
+				regClick = true
+			end 
+
+			if regClick then 
+				
+				if UnitAffectingCombat("player") then
+					if TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key] == nextIndex then
+						Totem[key]["queue"] = nil 
+					else
+						Totem[key]["queue"] = nextIndex
+					end
+				else
+					TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key] = nextIndex
+				end
+				ToQu_ConfigChange()
+			end
+			break
 		end
 	end
 end
@@ -132,7 +184,6 @@ function Write_Macro()
 				if TotID ~= 0 then 
 					local SpellName = select(1, GetSpellInfo(TotID))
 					MacroText = MacroText .. SpellName  ..  ", " 
-					-- if TotemQueueConfig[ToQuRealm][ToQuChar].order[key] < 4 then MacroText = MacroText ..  ", " end
 				end
 				break
 			end
@@ -158,38 +209,70 @@ end
 		TotemQueueFrame:Hide() -- turn our mod off
 		return
 	end
-		
+
 	local size = TotemQueueConfig[ToQuRealm][ToQuChar].size
+
+	if TotemQueueFrame:GetSize() ~= {size, size} then
+		TotemQueueFrame:SetSize(size*4, size+ButtonOffsetY)
+		TotemQueue_Background_Texture:SetSize(size*4, size+ ButtonOffsetY)
+	end
+
 	for key,value in pairs(Totem) do
-		if Totem[key]["tframe"]:GetSize() ~= {size, size} then
-			Totem[key]["tframe"]:SetSize(size, size)
-			Totem[key]["texture"]:SetSize(size, size)
+		local element = Totem[key]
+		local eTexture = element["texture"]
+		local eQueueTexture = element["queuetexture"]
+		local eFrame = element["tframe"]
+		local eTotemList = element["totemlist"]
+
+		if eFrame:GetSize() ~= {size, size} then
+			eFrame:SetSize(size, size)
+			eTexture:SetSize(size, size)
+			eQueueTexture:SetSize(size/2.5, size/2.5)
 		end
 
 		local order = TotemQueueConfig[ToQuRealm][ToQuChar].order[key]
 		local xOfs = (order-1) * size
-		local curxOfs = select(4, Totem[key]["tframe"]:GetPoint())
+		local curxOfs = select(4, eFrame:GetPoint())
 		if xOfs ~= curxOfs then
-			Totem[key]["tframe"]:SetPoint("LEFT", xOfs, 0)
+			element["tframe"]:SetPoint("LEFT", xOfs, -(ButtonOffsetY/2))
 		end
-	
-		local curTexture = Totem[key]["texture"]:GetTexture()
-		local currentTotem = TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key]
 
-		local Txture = GetSpellTexture(Totem[key]["totemlist"][currentTotem])
+		local curTexture = eTexture:GetTexture()
+		local currentTotem = TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key]
+		local Txture = GetSpellTexture(eTotemList[currentTotem])
 		if curTexture ~= Txture then
-			if Totem[key]["totemlist"][currentTotem]==0 then
-				Totem[key]["texture"]:SetTexture(Totem[key]["off"])
-				Totem[key]["texture"]:SetDesaturated(1)
-				Totem[key]["texture"]:SetSize(size*0.9, size*0.9)
+			if element["totemlist"][currentTotem]==0 then
+				eTexture:SetTexture(element["off"])
+				eTexture:SetDesaturated(1)
+				eTexture:SetSize(size*0.9, size*0.9)
 			else
-				Totem[key]["texture"]:SetTexture(Txture)
-				Totem[key]["texture"]:SetDesaturated(nil)
+				eTexture:SetTexture(Txture)
+				eTexture:SetDesaturated(nil)
 			end
 		end
+
+		
+		local queueIndex = element["queue"]
+		local queueTexture = eQueueTexture
+		if queueIndex==nil then
+			queueTexture:Hide()
+		else
+			local queueID = element["totemlist"][queueIndex]
+			local queueTxture = GetSpellTexture(queueID)
+			if queueID == 0 then
+				queueTexture:SetTexture(element["off"])
+				queueTexture:SetDesaturated(1)
+			else
+				queueTexture:SetTexture(queueTxture)
+				queueTexture:SetDesaturated(nil)
+			end
+			queueTexture:Show()
+		end
+
 	end
 
-	TotemQueueFrame:SetPoint("CENTER", TotemQueueConfig[ToQuRealm][ToQuChar].position[1], TotemQueueConfig[ToQuRealm][ToQuChar].position[2])
+	local x, y = TotemQueueConfig[ToQuRealm][ToQuChar].position[1], TotemQueueConfig[ToQuRealm][ToQuChar].position[2]
+	TotemQueueFrame:SetPoint("CENTER", x, y)
 
 	-- make sure to use the frame's name here, cannot rely on 'this' to mean the main frame
 	if (TotemQueueConfig[ToQuRealm][ToQuChar].on) then
@@ -197,8 +280,7 @@ end
 	else
 		TotemQueueFrame:Hide() -- hide our mod frame
 	end
-
-	Write_Macro()
+	if not(UnitAffectingCombat("player")) then Write_Macro() end
  end
  
 
@@ -306,6 +388,7 @@ SlashCmdList["ToQu"] = function(msg, editbox)
 		print(" -set x, y: set a position of Totem Queue frame.")
 		print(" -move x, y: offset position of Totem Queue frame.")
 		print(" -size S: SxS size of each icon.")
+		print(" -order efwa: order of totem in Totem Queue frame. [e]arth, [f]ire, [w]ater, [a]ir.")
 	else 
 		print("TotemQueue: command not recognized.")
 		print("Chat commands:")
@@ -314,5 +397,6 @@ SlashCmdList["ToQu"] = function(msg, editbox)
 		print(" -set x, y: set a position of Totem Queue frame.")
 		print(" -move x, y: offset position of Totem Queue frame.")
 		print(" -size S: SxS size of each icon.")
+		print(" -order efwa: order of totem in Totem Queue frame. [e]arth, [f]ire, [w]ater, [a]ir.")
 	end
 end
