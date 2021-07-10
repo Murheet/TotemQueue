@@ -3,7 +3,7 @@ ToQuChar = string.lower(UnitName("player"))
 ThisCharacter = string.lower(UnitName("player"))
 ToQuRealm = string.lower(GetRealmName())
 ToQu_variablesLoaded = false
-
+debugmode = false
 ButtonOffsetY = 18
 
 Totem ={}
@@ -241,10 +241,16 @@ end
 			element["tframe"]:SetPoint("LEFT", xOfs, -(ButtonOffsetY/2))
 		end
 
+		-- change totem texture	
 		local curTexture = eTexture:GetTexture()
 		local currentTotem = TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key]
 		local Txture = GetSpellTexture(eTotemList[currentTotem])
+		if debugmode then print("totemQueue debug curTexture: ", curTexture) end 
+		if debugmode then print("totemQueue debug Txture: ", curTexture) end 
+
 		if curTexture ~= Txture then
+			if debugmode then print("totemQueue debug element[totemlist][currentTotem]: ", element["totemlist"][currentTotem]) end 
+			if debugmode then print("totemQueue debug element[totemlist][currentTotem]==0: ", element["totemlist"][currentTotem]==0) end 
 			if element["totemlist"][currentTotem]==0 then
 				eTexture:SetTexture(element["off"])
 				eTexture:SetDesaturated(1)
@@ -255,6 +261,7 @@ end
 			end
 		end
 
+		-- change queue texture
 		if GetSpellTexture(eTotemList[currentTotem]) == nil then eTexture:SetTexture(GetSpellTexture(eTotemList[currentTotem]))	end
 		local queueIndex = element["queue"]
 		local queueTexture = eQueueTexture
@@ -381,7 +388,11 @@ SlashCmdList["ToQu"] = function(msg, editbox)
 
 			ToQu_ConfigChange()
 		end
-
+	elseif msg == "debug" then
+		debugmode = not(debugmode)
+		 if debugmode then prntStr = "On"  else prntStr = "Off" end
+		print("TotemQueue Debug Mode: " .. prntStr)
+		
 	elseif msg == "resist posse" then
 		print("Jysk.")
 	elseif msg == "help" then
