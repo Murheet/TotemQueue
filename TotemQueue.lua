@@ -56,15 +56,19 @@ TotemQueueConfig_defaultPosition	= {0, 0}
 TotemQueueConfig_defaultSize = 32
 
 function TotemQueueFrame_OnLoad(self)
-	-- register events
-	print("TotemQueue loaded")
-	-- Globals
-	self:RegisterEvent("ADDON_LOADED")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
-	TotemQueueFrame:Show()
-	TotemQueue_Background_Texture:SetTexture("Interface\\TutorialFrame\\TutorialFrameBackground")
-	TotemQueue_Background_Texture:Show()
-	ToQu_ConfigChange()
+	if select(2, UnitClass("player")) == "SHAMAN" then
+		-- register events
+		print("TotemQueue loaded")
+		-- Globals
+		self:RegisterEvent("ADDON_LOADED")
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		TotemQueueFrame:Show()
+		TotemQueue_Background_Texture:SetTexture("Interface\\TutorialFrame\\TutorialFrameBackground")
+		TotemQueue_Background_Texture:Show()
+		ToQu_ConfigChange()
+	else
+		TotemQueueFrame:Hide()
+	end
 end
 
 function TotemQueueFrame_OnEvent(self, event, ...)
