@@ -72,6 +72,7 @@ function TotemQueueFrame_OnLoad(self)
 end
 
 function TotemQueueFrame_OnEvent(self, event, ...)
+	if debugmode then print("totemQueue debug TotemQueueFrame_OnEvent: ", event) end 
 	if(event == "ADDON_LOADED") then
 		if not(ToQu_variablesLoaded) then TotemQueue_VARIABLES_LOADED() end
 		ToQu_ConfigChange()
@@ -128,8 +129,11 @@ function Totem_Frame_Click(self, btn,...)
 	ClickedFrame = self:GetName()
 	local regClick = false
 	local nextIndex = nil
+
+	
 	for key,value in pairs(Totem) do
 		if ClickedFrame == value["tframe"]:GetName() then 
+			if debugmode then print("totemQueue debug ClickedFrame: ", ClickedFrame) end 
 			local totCount = table.getn(Totem[key]["totemlist"])
 			
 			local currentIndex = nil
@@ -159,7 +163,6 @@ function Totem_Frame_Click(self, btn,...)
 			end 
 
 			if regClick then 
-				
 				if UnitAffectingCombat("player") then
 					if TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key] == nextIndex then
 						Totem[key]["queue"] = nil 
@@ -245,24 +248,38 @@ end
 		local curTexture = eTexture:GetTexture()
 		local currentTotem = TotemQueueConfig[ToQuRealm][ToQuChar].currentTotem[key]
 		local Txture = GetSpellTexture(eTotemList[currentTotem])
-		if debugmode then print("totemQueue debug curTexture: ", curTexture) end 
-		if debugmode then print("totemQueue debug Txture: ", curTexture) end 
 
 		if curTexture ~= Txture then
+			if debugmode then print("totemQueue debug curTexture: ", curTexture) end 
+			if debugmode then print("totemQueue debug Txture: ", curTexture) end 
 			if debugmode then print("totemQueue debug element[totemlist][currentTotem]: ", element["totemlist"][currentTotem]) end 
 			if debugmode then print("totemQueue debug element[totemlist][currentTotem]==0: ", element["totemlist"][currentTotem]==0) end 
+			
 			if element["totemlist"][currentTotem]==0 then
+				if debugmode then print("element[off]: ", element["off"]) end
+				
 				eTexture:SetTexture(element["off"])
 				eTexture:SetDesaturated(1)
 				eTexture:SetSize(size*0.9, size*0.9)
+				
+				if debugmode then print("eTexture:GetTexture(): ", eTexture:GetTexture()) end 
 			else
 				eTexture:SetTexture(Txture)
 				eTexture:SetDesaturated(nil)
 			end
 		end
 
+		if eTexture:GetTexture() == nil then
+			local FillTexture = nil
+			if element["totemlist"][currentTotem]==0 then
+				FillTexture = element["off"]
+			else
+				FillTexture = GetSpellTexture(eTotemList[currentTotem])
+			end
+			eTexture:SetTexture(FillTexture)
+		end 
+
 		-- change queue texture
-		if GetSpellTexture(eTotemList[currentTotem]) == nil then eTexture:SetTexture(GetSpellTexture(eTotemList[currentTotem]))	end
 		local queueIndex = element["queue"]
 		local queueTexture = eQueueTexture
 		if queueIndex==nil then
@@ -279,7 +296,6 @@ end
 			end
 			queueTexture:Show()
 		end
-
 	end
 
 	local x, y = TotemQueueConfig[ToQuRealm][ToQuChar].position[1], TotemQueueConfig[ToQuRealm][ToQuChar].position[2]

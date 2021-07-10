@@ -1,6 +1,6 @@
 ## Interface: 20501
 ## Title: TotemQueue
-## Version: 1
+## Version: 1.0.1
 ## SavedVariables: TotemQueueConfig
 TotemQueueFrame.xml
 TotemQueue.lua
