@@ -388,6 +388,7 @@ SlashCmdList["ToQu"] = function(msg, editbox)
 
 			ToQu_ConfigChange()
 		end
+		
 	elseif msg == "debug" then
 		debugmode = not(debugmode)
 		 if debugmode then prntStr = "On"  else prntStr = "Off" end
